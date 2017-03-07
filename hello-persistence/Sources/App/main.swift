@@ -15,8 +15,11 @@ drop.get { req in
 let basic = BasicController()
 basic.addRoutes(drop: drop)
 
-let acronyms = AcronymsController()
-acronyms.addRoutes(drop: drop)
+//let acronyms = AcronymsController()
+// acronyms.addRoutes(drop: drop)
+
+let acronymsApi = AcronymsApiController()
+drop.resource("acronyms", acronymsApi)
 
 drop.resource("posts", PostController())
 
