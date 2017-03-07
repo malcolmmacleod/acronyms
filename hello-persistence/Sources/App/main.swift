@@ -12,64 +12,11 @@ drop.get { req in
     ])
 }
 
-drop.get("version") { req in
-    if let db = drop.database?.driver as? PostgreSQLDriver {
-        let version = try db.raw("SELECT version()")
-        return try JSON(node: version)
-    } else {
-        return "No db connection"
-    }
-}
+let basic = BasicController()
+basic.addRoutes(drop: drop)
 
-drop.get("model") { req in
-    let acronym = Acronym(short: "JFK", long: "John F Kennedy")
-    
-    return try acronym.makeJSON()
-}
-
-drop.get("test") { req in
-    var acronym = Acronym(short: "JFK", long: "John F Kennedy")
-    try acronym.save()
-    
-    return try JSON(node: Acronym.all().makeNode())
-}
-
-drop.post("new") { req in
-    
-    var acronym = try Acronym(node: req.json)
-    try acronym.save()
-    
-    return acronym
-}
-
-drop.get("all") { req in
-    return try JSON(node: Acronym.all().makeNode())
-}
-
-drop.get("first") { req in
-    return try JSON(node: Acronym.query().first()?.makeNode())
-}
-
-drop.get("short", String.self) { req, str in
-    return try JSON(node: Acronym.query().filter("short", str).all().makeNode())
-}
-
-drop.put("update", String.self) { req, str in
-   guard var first = try Acronym.query().filter("short", str).first(),
-    let long = req.data["long"]?.string else {
-        throw Abort.badRequest
-    }
-    
-    first.long = long
-    try first.save()
-    return first
-}
-
-drop.delete("delete", String.self) { req, str in
-    let query = try Acronym.query().filter("short", str)
-    try query.delete()
-    return try JSON(node: Acronym.all().makeNode())
-}
+let acronyms = AcronymsController()
+acronyms.addRoutes(drop: drop)
 
 drop.resource("posts", PostController())
 
