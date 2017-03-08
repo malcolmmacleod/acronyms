@@ -3,6 +3,9 @@ import VaporPostgreSQL
 
 
 let drop = Droplet()
+
+(drop.view as? LeafRenderer)?.stem.cache = nil
+
 try drop.addProvider(VaporPostgreSQL.Provider.self)
 drop.preparations += Acronym.self
 
@@ -20,6 +23,9 @@ basic.addRoutes(drop: drop)
 
 let acronymsApi = AcronymsApiController()
 drop.resource("acronyms", acronymsApi)
+
+let til = TILController()
+til.addRoutes(drop: drop)
 
 drop.resource("posts", PostController())
 
