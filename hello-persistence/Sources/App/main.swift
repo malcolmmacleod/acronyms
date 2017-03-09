@@ -24,6 +24,10 @@ basic.addRoutes(drop: drop)
 let acronymsApi = AcronymsApiController()
 drop.resource("acronyms", acronymsApi)
 
+let usersApi = UsersApiController()
+drop.resource("users", usersApi)
+
+
 let til = TILController()
 til.addRoutes(drop: drop)
 
