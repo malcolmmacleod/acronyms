@@ -8,6 +8,7 @@ let drop = Droplet()
 
 try drop.addProvider(VaporPostgreSQL.Provider.self)
 drop.preparations += Acronym.self
+drop.preparations += User.self
 
 drop.get { req in
     return try drop.view.make("welcome", [
