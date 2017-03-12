@@ -1,6 +1,7 @@
 import Vapor
 
-import Vapor
+import Turnstile
+import TurnstileCrypto
 
 final class User : Model{
     
@@ -9,12 +10,14 @@ final class User : Model{
     
     var name: Valid<NameValidator>
     var email: Valid<EmailValidator>
-    var password: Valid<PasswordValidator>
+    var password: String
     
-    init (name: String, email: String, password: String) throws {
+    init (name: String, email: String, rawPassword: String) throws {
         self.name = try name.validated()
         self.email = try email.validated()
-        self.password = try password.validated()
+        let validatedPassword: Valid<PasswordValidator> = try rawPassword.validated()
+        
+        self.password = BCrypt.hash(password: validatedPassword.value)
     }
     
     init (node: Node,  in context: Context ) throws {
@@ -24,14 +27,14 @@ final class User : Model{
         let emailString = try node.extract("email") as String
         self.email = try emailString.validated()
         let passwordString = try node.extract("password") as String
-        self.password = try passwordString.validated()
+        self.password =  passwordString
     }
     
     func makeNode(context: Context) throws -> Node {
         return try Node(node: ["id": id,
              "name": name.value,
              "email": email.value,
-             "password": password.value])
+             "password": password])
     }
     
     static func prepare(_ database: Database) throws {
@@ -45,5 +48,16 @@ final class User : Model{
     
     static func revert(_ database: Database) throws {
         try database.delete("users")
+    }
+    
+    static func register(name: String, email: String, rawPassword: String) throws -> User {
+        var newUSer = try User(name: name, email: email, rawPassword: rawPassword)
+        
+        if try User.query().filter("email", newUSer.email.value).first() == nil {
+            try newUSer.save()
+            return newUSer
+        } else {
+            throw AccountTakenError()
+        }
     }
 }

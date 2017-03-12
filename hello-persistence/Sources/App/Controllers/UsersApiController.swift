@@ -42,6 +42,11 @@ final class UsersApiController : ResourceRepresentable {
         try user.delete()
         return JSON([:])
     }
+    
+    func acronymsIndex(request: Request, user: User) throws -> ResponseRepresentable {
+        let children = try user.children(nil, Acronym.self).all()
+        return try JSON(node: children.makeNode())
+    }
 }
 
 extension Request {
