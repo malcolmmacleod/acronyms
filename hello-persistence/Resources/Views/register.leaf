@@ -1,12 +1,14 @@
 #extend("base")
 
+#export("body") {
+
 <div class="row">
 <div class="u-full-width">
 <h4>Add New User</h4>
 </div>
 </div>
 
-<form action="/til/users" method="post">
+<form action="/til/users/register" method="post">
 <div class="row">
 <label>Name</label>
 <input name="name" class="u-full-width" placeholder="Name" />
@@ -14,14 +16,15 @@
 <div class="row">
 <label>Email</label>
 <input name="email" class="u-full-width" placeholder="Email" />
-<input class="button-primary" type="submit" value="Add Acronym" />"
 </div>
 <div class="row">
     <label>Password</label>
     <input name="password" class="u-full-width" placeholder="Password" />
 </div>
 <div class="row">
-    <input class="button-primary" type="submit" value="Add Acronym" />"
+    <input class="button-primary" type="submit" value="Register" />
 </div>
 </form>
+
+<p>Already a user? Go to <a href="/til/users/login">Login</a></p>
 }
