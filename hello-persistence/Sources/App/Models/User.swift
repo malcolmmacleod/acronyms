@@ -1,7 +1,5 @@
 import Vapor
 
-import Vapor
-
 final class User : Model{
     
     var id: Node?

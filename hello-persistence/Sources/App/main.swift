@@ -7,7 +7,9 @@ let drop = Droplet()
 (drop.view as? LeafRenderer)?.stem.cache = nil
 
 try drop.addProvider(VaporPostgreSQL.Provider.self)
+
 drop.preparations += Acronym.self
+
 drop.preparations += User.self
 
 drop.get { req in
@@ -31,6 +33,9 @@ drop.resource("users", usersApi)
 
 let til = TILController()
 til.addRoutes(drop: drop)
+
+let tilUsers = TILUsersController()
+tilUsers.addRoutes(drop: drop)
 
 drop.resource("posts", PostController())
 
