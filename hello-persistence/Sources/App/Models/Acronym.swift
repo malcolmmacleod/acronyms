@@ -38,7 +38,7 @@ final class Acronym : Model{
             users.id()
             users.string("short")
             users.string("long")
-            users.parent(User.self, optional: false)
+            users.parent(TILUser.self, optional: false)
         }
     }
     

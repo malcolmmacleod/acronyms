@@ -1,6 +1,6 @@
 import Vapor
 import VaporPostgreSQL
-
+import Auth
 
 let drop = Droplet()
 
@@ -10,7 +10,10 @@ try drop.addProvider(VaporPostgreSQL.Provider.self)
 
 drop.preparations += Acronym.self
 
-drop.preparations += User.self
+drop.preparations += TILUser.self
+
+drop.addConfigurable(middleware: AuthMiddleware(user: TILUser.self), name: "auth")
+    
 
 drop.get { req in
     return try drop.view.make("welcome", [

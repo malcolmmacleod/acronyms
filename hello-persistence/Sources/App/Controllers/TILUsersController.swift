@@ -1,20 +1,21 @@
 import Vapor
 import HTTP
 import VaporPostgreSQL
+import Turnstile
 
 
 final class TILUsersController {
     func addRoutes(drop: Droplet) {
         drop.get("til/users", handler: indexView)
         drop.post("til/users", handler: addUser)
-        drop.post("til/users", User.self, "delete", handler: deleteUser)
-        drop.get("til/users", User.self, "acronyms", handler: acronymsIndex)
-        drop.get("til/users/register", handler: registerView)
-        drop.post("til/users/register", handler: register)
+        drop.post("til/users", TILUser.self, "delete", handler: deleteUser)
+        drop.get("til/users", TILUser.self, "acronyms", handler: acronymsIndex)
+       
+
     }
     
     func indexView(request: Request) throws -> ResponseRepresentable {
-        let users = try User.all().makeNode()
+        let users = try TILUser.all().makeNode()
         
         let parameters = try Node(node: [
             "users": users
@@ -28,34 +29,19 @@ final class TILUsersController {
             throw Abort.badRequest
         }
         
-        var user = try User(name: name, email: email, rawPassword: password)
+        var user = try TILUser(name: name, email: email, rawPassword: password)
         try user.save()
         
         return Response(redirect: "/til/users")
     }
     
-    func deleteUser(request: Request, user: User) throws -> ResponseRepresentable {
+    func deleteUser(request: Request, user: TILUser) throws -> ResponseRepresentable {
         try user.delete()
         return Response(redirect: "/til/users")
     }
     
-    func acronymsIndex(request: Request, user: User) throws -> ResponseRepresentable {
+    func acronymsIndex(request: Request, user: TILUser) throws -> ResponseRepresentable {
         let children = try user.children(nil, Acronym.self).all()
         return try JSON(node: children.makeNode())
     }
-    
-    func registerView(request: Request) throws -> ResponseRepresentable {
-        return try drop.view.make("register")
-    }
-    
-    func register(request: Request) throws -> ResponseRepresentable {
-        guard  let name = request.formURLEncoded?["name"]?.string, let email = request.formURLEncoded?["email"]?.string, let password = request.formURLEncoded?["password"]?.string else {
-            throw Abort.badRequest
-        }
-        
-        _ = try User.register(name: name, email: email, rawPassword: password)
-        
-        return Response(redirect: "/til/users")
-    }
-
 }

@@ -2,8 +2,9 @@ import Vapor
 
 import Turnstile
 import TurnstileCrypto
+import Auth
 
-final class User : Model{
+final class TILUser : Model, Auth.User{
     
     var id: Node?
     var exists: Bool = false
@@ -51,13 +52,46 @@ final class User : Model{
     }
     
     static func register(name: String, email: String, rawPassword: String) throws -> User {
-        var newUSer = try User(name: name, email: email, rawPassword: rawPassword)
+        var newUSer = try TILUser(name: name, email: email, rawPassword: rawPassword)
         
-        if try User.query().filter("email", newUSer.email.value).first() == nil {
+        if try TILUser.query().filter("email", newUSer.email.value).first() == nil {
             try newUSer.save()
             return newUSer
         } else {
             throw AccountTakenError()
         }
+    }
+}
+
+
+extension TILUser : Authenticator {
+    static func authenticate(credentials: Credentials) throws -> User {
+        var user: User?
+        
+        switch credentials {
+        case let credentials as UsernamePassword:
+            let fetchedUser = try TILUser.query()
+                .filter("email", credentials.username)
+                .first()
+            
+            if let password = fetchedUser?.password, password != "", (try? BCrypt.verify(password: credentials.password, matchesHash: password)) == true {
+                user = fetchedUser
+            }
+        case let credentials as Identifier:
+            user = try TILUser.find(credentials.id)
+        default:
+            throw UnsupportedCredentialsError()
+        }
+        
+        if let user = user {
+            return user
+        } else {
+            throw IncorrectCredentialsError()
+        }
+        
+    }
+    
+    static func register(credentials: Credentials) throws -> User {
+        throw Abort.badRequest
     }
 }

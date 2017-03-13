@@ -1,0 +1,23 @@
+#extend("base")
+
+#export("body") {
+
+<div class="row">
+<div class="u-full-width">
+
+<form action="/til/users/login" method="post">
+<div class="row">
+<label>Email</label>
+<input name="email" class="u-full-width" placeholder="Email" />
+</div>
+<div class="row">
+<label>Password</label>
+<input name="password" class="u-full-width" placeholder="Password" type="password" />
+</div>
+<div class="row">
+<input class="button-primary" type="submit" value="Login" />
+</div>
+</form>
+
+<p>Not a user? Go to <a href="/til/users/register">Register</a></p>
+}

@@ -3,7 +3,7 @@ import HTTP
 import VaporPostgreSQL
 
 final class UsersApiController : ResourceRepresentable {
-    func makeResource() -> Resource<User> {
+    func makeResource() -> Resource<TILUser> {
         return Resource(
             index: index,
             store: create,
@@ -14,7 +14,7 @@ final class UsersApiController : ResourceRepresentable {
     }
     
     func index(request: Request) throws -> ResponseRepresentable {
-        return try JSON(node: User.all().makeNode())
+        return try JSON(node: TILUser.all().makeNode())
     }
     
     func create(request: Request) throws -> ResponseRepresentable {
@@ -23,11 +23,11 @@ final class UsersApiController : ResourceRepresentable {
         return user
     }
     
-    func show(req: Request, user: User) throws -> ResponseRepresentable {
+    func show(req: Request, user: TILUser) throws -> ResponseRepresentable {
         return user
     }
     
-    func update(req: Request, user: User) throws -> ResponseRepresentable {
+    func update(req: Request, user: TILUser) throws -> ResponseRepresentable {
         let newUser = try req.user()
         var user = user
         user.name = newUser.name
@@ -38,20 +38,20 @@ final class UsersApiController : ResourceRepresentable {
         return user
     }
     
-    func delete(req: Request, user: User) throws -> ResponseRepresentable {
+    func delete(req: Request, user: TILUser) throws -> ResponseRepresentable {
         try user.delete()
         return JSON([:])
     }
     
-    func acronymsIndex(request: Request, user: User) throws -> ResponseRepresentable {
+    func acronymsIndex(request: Request, user: TILUser) throws -> ResponseRepresentable {
         let children = try user.children(nil, Acronym.self).all()
         return try JSON(node: children.makeNode())
     }
 }
 
 extension Request {
-    func user() throws -> User {
+    func user() throws -> TILUser {
         guard let json = json else { throw Abort.badRequest }
-        return try User(node: json)
+        return try TILUser(node: json)
     }
 }
